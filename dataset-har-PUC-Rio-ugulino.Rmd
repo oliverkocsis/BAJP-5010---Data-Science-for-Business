@@ -1,0 +1,9 @@
+---
+title: 'Wearable Computing: Classification of Body Postures and Movements (PUC-Rio) Data Set'
+author: "Oliver Kocsis"
+date: "February 23, 2016"
+output: html_document
+---
+Source: [Wearable Computing: Classification of Body Postures and Movements (PUC-Rio) Data Set](http://archive.ics.uci.edu/ml/datasets/Wearable+Computing%3A+Classification+of+Body+Postures+and+Movements+%28PUC-Rio%29)
+
+

@@ -1,0 +1,89 @@
+library(data.table)
+set.seed(2016)
+
+data <- read.csv("dataset-har-PUC-Rio-ugulino.csv", sep = ";", stringsAsFactors = FALSE)
+setDT(data)
+data[, gender := as.factor(gender)]
+data[, age := as.integer(age)]
+data[, how_tall_in_meters := as.numeric(gsub(",", ".", how_tall_in_meters))]
+data[, weight := as.integer(weight)]
+data[, body_mass_index := as.numeric(gsub(",", ".", body_mass_index))]
+data[, x1 := as.integer(x1)]
+data[, y1 := as.integer(y1)]
+data[, z1 := as.integer(z1)]
+data[, x2 := as.integer(x2)]
+data[, y2 := as.integer(y2)]
+data[, z2 := as.integer(z2)]
+data[, x3 := as.integer(y3)]
+data[, y3 := as.integer(x3)]
+data[, z3 := as.integer(z3)]
+data[, x4 := as.integer(x4)]
+data[, y4 := as.integer(y4)]
+data[, z4 := as.integer(z4)]
+data[, class := factor(class)]
+data <- data[!is.na(z4)]
+colnames(data)[4] <- "height"
+
+#### Summary of Users ####
+user <- data[,.(Gender = max(gender), 
+                Age = max(age), 
+                Height = max(height), 
+                Weight = max(weight), 
+                BMI = max(body_mass_index)), 
+             by = user]
+setkey(user, user)
+summary(user)
+par(mfrow=c(2,2))
+barplot.with.values <- function(values, names.arg, main) {
+  names(values) <- names.arg
+  bp <- barplot(values, main = main)
+  mtext(side = 1, at = bp, text = values, line = 3)
+}
+barplot.with.values(user$Age, user$user, "Age")
+barplot.with.values(user$Height, user$user, "Height")
+barplot.with.values(user$Weight, user$user, "Wight")
+barplot.with.values(user$BMI, user$user, "Body Mass Index")
+par(mfrow=c(1,1))
+
+
+#### Summary of Variables ####
+class <- data[, .N, by = class]
+setkey(class, class)
+barplot.with.values(class$N, class$class, NULL)
+library(scatterplot3d)
+scatterplot3d(data$x1, data$y1, data$z1, main="Sensor 1")
+scatterplot3d(data$x2, data$y2, data$z2, main="Sensor 2")
+scatterplot3d(data$x3, data$y3, data$z3, main="Sensor 3")
+scatterplot3d(data$x4, data$y4, data$z4, main="Sensor 4")
+
+
+sensor_1 <- melt(data, id.vars = c("user", "class"), measure.vars = c("x1", "y1", "z1"))
+sensor_2 <- melt(data, id.vars = c("user", "class"), measure.vars = c("x2", "y2", "z2"))
+sensor_3 <- melt(data, id.vars = c("user", "class"), measure.vars = c("x3", "y3", "z3"))
+sensor_4 <- melt(data, id.vars = c("user", "class"), measure.vars = c("x4", "y4", "z4"))
+par(mfrow=c(1,5))
+boxplot.sensor <- function(sensor, title) {
+  for (c in class$class) {
+    boxplot(value ~ variable, data = sensor[class == c], ylim = c(-300,300), main = c)
+  }
+  title(title, outer=TRUE)
+}
+boxplot.sensor(sensor_1, "Sensor 1")
+boxplot.sensor(sensor_2, "Sensor 2")
+boxplot.sensor(sensor_3, "Sensor 3")
+boxplot.sensor(sensor_4, "Sensor 4")
+par(mfrow=c(1,1))
+
+
+#### Training, Validation, and Test sets #### 
+N <- nrow(data)
+idx_train <- sample(1:N,N/2)
+idx_valid <- sample(base::setdiff(1:N, idx_train), N/4)
+idx_test <- base::setdiff(base::setdiff(1:N, idx_train),idx_valid)
+d_train <- data[idx_train,]
+d_valid <- data[idx_valid,]
+d_test  <- data[idx_test,]
+rm(N, idx_train, idx_valid, idx_test)
+
+
+
