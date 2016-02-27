@@ -2,7 +2,10 @@
 title: 'Wearable Computing: Classification of Body Postures and Movements (PUC-Rio) Data Set'
 author: "Oliver Kocsis"
 date: "February 23, 2016"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    theme: united
 ---
 This machine learning project uses the a dataset of a research on Human Activity Recognition (HAR): [Wearable Computing: Classification of Body Postures and Movements (PUC-Rio) Data Set](http://archive.ics.uci.edu/ml/datasets/Wearable+Computing%3A+Classification+of+Body+Postures+and+Movements+%28PUC-Rio%29). 
 
@@ -204,7 +207,10 @@ summarize.model <- function(model) {
 
   print(kable(h2o.confusionMatrix(model, valid = TRUE)))
   
-  print(kable(h2o.varimp(model)))
+  try(varimp <- h2o.varimp(model), silent = TRUE)
+  if(exists("varimp") & !is.null(varimp)) {
+    print(kable(varimp))
+  }
 }
 ```
 
@@ -392,6 +398,90 @@ summary(drf)
 ```
 
 
+## Deep Learning (Grid Search)
+The default values of the Distributed Random Forest model are 
+ * Activation function (activation): Rectifier
+ * Hidden layer sizes (hidden): 200, 200
+ * How many times the dataset should be iterated (epochs): 10
+
+Grid search is used to find the best parameter in order to find the best parameter. 
+### Activation function
+```{r Deep Learning Activation, warning=FALSE, message=FALSE, results="hide"}
+deeplearning_activation <- grid.search("deeplearning", grid_id = "deeplearning_activation", hyper_params = list(activation = c("Tanh", "TanhWithDropout", "Maxout", "MaxoutWithDropout", "Rectifier", "RectifierWithDropout")))
+```
+
+```{r, warning=FALSE, message=FALSE, results="asis"}
+summarize.grid(deeplearning_activation)
+best <- h2o.getModel(deeplearning_activation@model_ids[[1]])
+summarize.model(best)
+```
+
+```{r, warning=FALSE, message=FALSE}
+plot(best)
+```
+
+#### Conclusion
+Based on the scoring history and the summary table **activation of Tanh** is used in the final model. 
+
+### Hidden layer size
+```{r Deep Learning Hidden, warning=FALSE, message=FALSE, results="hide"}
+deeplearning_hidden <- grid.search("deeplearning", grid_id = "deeplearning_hidden", hyper_params = list(hidden = c(c(100, 100), c(200, 200), c(300, 300), c(400, 400))))
+```
+
+```{r, warning=FALSE, message=FALSE, results="asis"}
+summarize.grid(deeplearning_hidden)
+best <- h2o.getModel(deeplearning_hidden@model_ids[[1]])
+summarize.model(best)
+```
+
+```{r, warning=FALSE, message=FALSE}
+plot(best)
+```
+
+#### Conclusion
+Based on the scoring history and the summary table **hidden layer size of 200** is used in the final model. 
+
+### Epoch
+```{r Deep Learning Epoch, warning=FALSE, message=FALSE, results="hide"}
+deeplearning_epoch <- grid.search("deeplearning", grid_id = "deeplearning_epoch", hyper_params = list(epochs = c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100)))
+```
+
+```{r, warning=FALSE, message=FALSE, results="asis"}
+summarize.grid(deeplearning_epoch)
+best <- h2o.getModel(deeplearning_epoch@model_ids[[1]])
+summarize.model(best)
+```
+
+```{r, warning=FALSE, message=FALSE}
+plot(best)
+```
+
+#### Conclusion
+Based on the scoring history and the summary table **epoch of 30** is used in the final model. 
+
+### Cummulative
+```{r Deep Learning Final, warning=FALSE, message=FALSE, results="hide", cache=TRUE}
+try(deeplearning <- h2o.getModel("deeplearning"), silent = TRUE)
+if (!exists("deeplearning")) {
+  deeplearning <- h2o.deeplearning(model_id = "deeplearning", x = d_x_idxs, y = d_y_idxs, 
+            training_frame = dx_train, validation_frame = dx_valid,
+            activation = "Tanh", hidden = c(200,200), epochs = 30,
+            stopping_rounds = 5, stopping_tolerance = 1e-3, seed = seed)
+}
+
+```
+
+
+```{r, warning=FALSE, message=FALSE, results="asis"}
+summarize.model(deeplearning)
+```
+
+```{r, warning=FALSE, message=FALSE}
+plot(deeplearning)
+summary(deeplearning)
+```
+
+# Comparsion
 Try several supervised learning methods (and several values for the parameters for each method).
 
 Do model selection and evaluation properly (train-test or cross validation etc.) Show various diagnostics (e.g. ROC curve for classification etc.)
