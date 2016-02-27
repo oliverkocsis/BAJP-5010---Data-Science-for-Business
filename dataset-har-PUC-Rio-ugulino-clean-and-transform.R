@@ -3,9 +3,10 @@ set.seed(2016)
 
 data <- read.csv("dataset-har-PUC-Rio-ugulino.csv", sep = ";", stringsAsFactors = FALSE)
 setDT(data)
+colnames(data)[4] <- "height"
 data[, gender := as.factor(gender)]
 data[, age := as.integer(age)]
-data[, how_tall_in_meters := as.numeric(gsub(",", ".", how_tall_in_meters))]
+data[, height := as.numeric(gsub(",", ".", height))]
 data[, weight := as.integer(weight)]
 data[, body_mass_index := as.numeric(gsub(",", ".", body_mass_index))]
 data[, x1 := as.integer(x1)]
@@ -22,9 +23,6 @@ data[, y4 := as.integer(y4)]
 data[, z4 := as.integer(z4)]
 data[, class := factor(class)]
 data <- data[!is.na(z4)]
-colnames(data)[4] <- "height"
-
-
 
 
 #### Training, Validation, and Test sets #### 
@@ -35,6 +33,17 @@ idx_test <- base::setdiff(base::setdiff(1:N, idx_train),idx_valid)
 d_train <- data[idx_train,]
 d_valid <- data[idx_valid,]
 d_test  <- data[idx_test,]
+
+#### Mini batch for grid search ####
+minibatch <- data[sample(1:N, 20000)]
+N <- nrow(minibatch)
+idx_train <- sample(1:N,10000)
+idx_valid <- sample(base::setdiff(1:N, idx_train), 5000)
+idx_test <- base::setdiff(base::setdiff(1:N, idx_train),idx_valid)
+mini_train <- minibatch[idx_train,]
+mini_valid <- minibatch[idx_valid,]
+mini_test  <- minibatch[idx_test,]
+
 rm(N, idx_train, idx_valid, idx_test)
 
 

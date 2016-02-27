@@ -1,0 +1,66 @@
+H2O Grid Details
+================
+
+Grid ID: Grid_DRF_train_model_R_1456470034606_5 
+Used hyper parameters: 
+  -  nbins 
+  -  ntrees 
+  -  max_depth 
+Number of models: 36 
+Number of failed models: 0 
+
+Hyper-Parameter Search Summary: ordered by increasing logloss
+  nbins ntrees max_depth                                       model_ids            logloss
+1    50    100        25 Grid_DRF_train_model_R_1456470034606_5_model_27 0.0456771925859684
+2    50    500        25 Grid_DRF_train_model_R_1456470034606_5_model_33 0.0459257990495433
+3    50    250        25 Grid_DRF_train_model_R_1456470034606_5_model_30 0.0460163201289413
+4   100    500        25 Grid_DRF_train_model_R_1456470034606_5_model_34 0.0481940040116189
+5   100    250        25 Grid_DRF_train_model_R_1456470034606_5_model_31 0.0482288958108166
+
+---
+   nbins ntrees max_depth                                      model_ids           logloss
+31   150    500        10 Grid_DRF_train_model_R_1456470034606_5_model_8 0.123060492072703
+32   100    500        10 Grid_DRF_train_model_R_1456470034606_5_model_7 0.123326317195328
+33   100    100        10 Grid_DRF_train_model_R_1456470034606_5_model_1 0.123455870946013
+34    50    250        10 Grid_DRF_train_model_R_1456470034606_5_model_3 0.126968290549853
+35    50    500        10 Grid_DRF_train_model_R_1456470034606_5_model_6  0.12774328608896
+36    50    100        10 Grid_DRF_train_model_R_1456470034606_5_model_0 0.127788747064601
+
+
+  nbins	ntrees	max_depth	model_ids	logloss
+	50	100	25	Grid_DRF_train_model_R_1456470034606_5_model_27	0.04567719258596836
+	50	500	25	Grid_DRF_train_model_R_1456470034606_5_model_33	0.045925799049543296
+	50	250	25	Grid_DRF_train_model_R_1456470034606_5_model_30	0.04601632012894129
+	100	500	25	Grid_DRF_train_model_R_1456470034606_5_model_34	0.04819400401161885
+	100	250	25	Grid_DRF_train_model_R_1456470034606_5_model_31	0.04822889581081664
+	100	100	25	Grid_DRF_train_model_R_1456470034606_5_model_28	0.04842288362439484
+	50	250	20	Grid_DRF_train_model_R_1456470034606_5_model_21	0.048488282668246695
+	50	500	20	Grid_DRF_train_model_R_1456470034606_5_model_24	0.04925415669126334
+	50	100	20	Grid_DRF_train_model_R_1456470034606_5_model_18	0.04950096397806635
+	150	500	25	Grid_DRF_train_model_R_1456470034606_5_model_35	0.049601230912117975
+	150	250	25	Grid_DRF_train_model_R_1456470034606_5_model_32	0.05048454499372716
+	100	500	20	Grid_DRF_train_model_R_1456470034606_5_model_25	0.0505632356078717
+	100	250	20	Grid_DRF_train_model_R_1456470034606_5_model_22	0.050662960523998914
+	100	100	20	Grid_DRF_train_model_R_1456470034606_5_model_19	0.051021744803634285
+	150	100	25	Grid_DRF_train_model_R_1456470034606_5_model_29	0.05192760515749406
+	150	250	20	Grid_DRF_train_model_R_1456470034606_5_model_23	0.052237602116968644
+	150	500	20	Grid_DRF_train_model_R_1456470034606_5_model_26	0.05266631988261162
+	150	100	20	Grid_DRF_train_model_R_1456470034606_5_model_20	0.05373375733768518
+	50	100	15	Grid_DRF_train_model_R_1456470034606_5_model_9	0.0618354989220577
+	50	250	15	Grid_DRF_train_model_R_1456470034606_5_model_12	0.06238632064371326
+	50	500	15	Grid_DRF_train_model_R_1456470034606_5_model_15	0.06241524034275455
+	100	250	15	Grid_DRF_train_model_R_1456470034606_5_model_13	0.06304774950392976
+	100	500	15	Grid_DRF_train_model_R_1456470034606_5_model_16	0.0634647813801087
+	150	250	15	Grid_DRF_train_model_R_1456470034606_5_model_14	0.06361124583098321
+	100	100	15	Grid_DRF_train_model_R_1456470034606_5_model_10	0.06380666909049793
+	150	500	15	Grid_DRF_train_model_R_1456470034606_5_model_17	0.06388042377681818
+	150	100	15	Grid_DRF_train_model_R_1456470034606_5_model_11	0.06453763574174382
+	150	100	10	Grid_DRF_train_model_R_1456470034606_5_model_2	0.12086070608403586
+	150	250	10	Grid_DRF_train_model_R_1456470034606_5_model_5	0.1215183861346297
+	100	250	10	Grid_DRF_train_model_R_1456470034606_5_model_4	0.12271173443374406
+	150	500	10	Grid_DRF_train_model_R_1456470034606_5_model_8	0.12306049207270349
+	100	500	10	Grid_DRF_train_model_R_1456470034606_5_model_7	0.12332631719532806
+	100	100	10	Grid_DRF_train_model_R_1456470034606_5_model_1	0.12345587094601274
+	50	250	10	Grid_DRF_train_model_R_1456470034606_5_model_3	0.12696829054985326
+	50	500	10	Grid_DRF_train_model_R_1456470034606_5_model_6	0.12774328608896016
+	50	100	10	Grid_DRF_train_model_R_1456470034606_5_model_0	0.12778874706460136

@@ -4,16 +4,21 @@ user <- data[,.(Gender = max(gender),
                 Age = max(age), 
                 Height = max(height), 
                 Weight = max(weight), 
-                BMI = max(body_mass_index)), 
+                BMI = max(body_mass_index),
+                N = .N), 
              by = user]
 setkey(user, user)
-summary(user)
-par(mfrow=c(2,2))
+
 barplot.with.values <- function(values, names.arg, main) {
   names(values) <- names.arg
   bp <- barplot(values, main = main)
   mtext(side = 1, at = bp, text = values, line = 3)
 }
+summary(data$class)
+barplot.with.values(summary(data$class), names(summary(data$class)), "Distribution of Classes")
+summary(user)
+barplot.with.values(user$N, user$user, "Distribution of Users")
+par(mfrow=c(2,2))
 barplot.with.values(user$Age, user$user, "Age")
 barplot.with.values(user$Height, user$user, "Height")
 barplot.with.values(user$Weight, user$user, "Wight")
