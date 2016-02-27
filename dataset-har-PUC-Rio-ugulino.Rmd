@@ -1,11 +1,11 @@
 ---
 title: 'Wearable Computing: Classification of Body Postures and Movements (PUC-Rio) Data Set'
 author: "Oliver Kocsis"
-date: "February 23, 2016"
+date: "February 27, 2016"
 output: 
   html_document:
-    toc: true
     theme: united
+    toc: yes
 ---
 This machine learning project uses the a dataset of a research on Human Activity Recognition (HAR): [Wearable Computing: Classification of Body Postures and Movements (PUC-Rio) Data Set](http://archive.ics.uci.edu/ml/datasets/Wearable+Computing%3A+Classification+of+Body+Postures+and+Movements+%28PUC-Rio%29). 
 
@@ -126,8 +126,7 @@ boxplot.sensor(sensor_4, NULL)
 ```
 
 ### 3D
-
-```{r, eval=FALSE, warning=FALSE}
+```{r 3D, eval=TRUE, warning=FALSE}
 library(scatterplot3d)
 par(mfrow=c(1,1))
 scatterplot3d(data$x1, data$y1, data$z1, main="Sensor 1")
@@ -138,7 +137,6 @@ scatterplot3d(data$x4, data$y4, data$z4, main="Sensor 4")
 
 
 # Supervised Learning Methods
-
 The original dataset contains 165K observations. This data set is divide into train, test and validations sets. 
 ```{r Sets, warning=FALSE}
 #### Training, Validation, and Test sets #### 
@@ -212,10 +210,18 @@ summarize.model <- function(model) {
     print(kable(varimp))
   }
 }
+
+get.metrics <- function(name, model) {
+  r2 <- h2o.r2(model, valid = TRUE)
+  mse <- h2o.mse(model, valid = TRUE)
+  logloss <- h2o.logloss(model, valid = TRUE)
+  list(name = name, r2 = r2, mse = mse, logloss = logloss)
+}
 ```
 
 ## Distributed Random Forest (Grid Search)
 The default values of the Distributed Random Forest model are 
+
 * Number of trees (ntrees): 50
 * Maximum tree depth (max_depth): 20
 * For numerical columns - real/int -, build a histogram of - at least - this many bins, then split at the best point (nbins): 20
@@ -256,7 +262,7 @@ plot(best)
 ```
 
 #### Conclusion
-Based on the scoring history and the summary table **maximum tree depth of 40 ** is used in the final model. 
+Based on the scoring history and the summary table **maximum tree depth of 40** is used in the final model. 
 
 ### Number of bins
 ```{r Distributed Random Forest Bins, warning=FALSE, message=FALSE, results="hide"}
@@ -274,9 +280,9 @@ plot(best)
 ```
 
 #### Conclusion
-Based on the scoring history and the summary table **number of bins of 60 ** is used in the final model. 
+Based on the scoring history and the summary table **number of bins of 60** is used in the final model. 
 
-### Cummulative
+### Best Model
 ```{r Distributed Random Forest Final, warning=FALSE, message=FALSE, results="hide", cache=TRUE}
 try(drf <- h2o.getModel("drf"), silent = TRUE)
 if (!exists("drf")) {
@@ -298,6 +304,7 @@ summary(drf)
 
 ## Gradient Boosting Method (Grid Search)
 The default values of the Distributed Random Forest model are 
+
 * Number of trees (ntrees): 50
 * Maximum tree depth (max_depth): 5
 * For numerical columns - real/int -, build a histogram of - at least - this many bins, then split at the best point (nbins): 20
@@ -377,7 +384,7 @@ plot(best)
 #### Conclusion
 Based on the scoring history and the summary table **learning rate of 0.5** is used in the final model. 
 
-### Cummulative
+### Best Model
 ```{r Gradient Boosting Method Final, warning=FALSE, message=FALSE, results="hide", cache=TRUE}
 try(gbm <- h2o.getModel("gbm"), silent = TRUE)
 if (!exists("gbm")) {
@@ -400,11 +407,13 @@ summary(drf)
 
 ## Deep Learning (Grid Search)
 The default values of the Distributed Random Forest model are 
- * Activation function (activation): Rectifier
- * Hidden layer sizes (hidden): 200, 200
- * How many times the dataset should be iterated (epochs): 10
+
+* Activation function (activation): Rectifier
+* Hidden layer sizes (hidden): 200, 200
+* How many times the dataset should be iterated (epochs): 10
 
 Grid search is used to find the best parameter in order to find the best parameter. 
+
 ### Activation function
 ```{r Deep Learning Activation, warning=FALSE, message=FALSE, results="hide"}
 deeplearning_activation <- grid.search("deeplearning", grid_id = "deeplearning_activation", hyper_params = list(activation = c("Tanh", "TanhWithDropout", "Maxout", "MaxoutWithDropout", "Rectifier", "RectifierWithDropout")))
@@ -459,7 +468,7 @@ plot(best)
 #### Conclusion
 Based on the scoring history and the summary table **epoch of 30** is used in the final model. 
 
-### Cummulative
+### Best Model
 ```{r Deep Learning Final, warning=FALSE, message=FALSE, results="hide", cache=TRUE}
 try(deeplearning <- h2o.getModel("deeplearning"), silent = TRUE)
 if (!exists("deeplearning")) {
@@ -482,8 +491,24 @@ summary(deeplearning)
 ```
 
 # Comparsion
-Try several supervised learning methods (and several values for the parameters for each method).
+```{r Comparsion, warning=FALSE, message=FALSE}
+models <- data.frame(get.metrics("Distributed Random Forest", drf))
+models <- rbind(models, data.frame(get.metrics("Gradient Boosting Method", gbm)))
+models <- rbind(models, data.frame(get.metrics("Deep Learning", deeplearning)))
+kable(models)
+```
 
-Do model selection and evaluation properly (train-test or cross validation etc.) Show various diagnostics (e.g. ROC curve for classification etc.)
+## Gradient Boosting Method
+The __Gradient Boosting Method__ performs the best out of the three model. It has the accuracy of 99.29% which is close to the accuracy of the original research (99.4%).
+```{r Performance, warning=FALSE, message=FALSE}
+performance <- h2o.performance(gbm, newdata = dx_test)
+kable(data.frame(get.metrics("Performance", performance)))
+print(kable(h2o.confusionMatrix(performance)))
+```
 
-Discuss which algorithms work best on your data and possibly why.
+
+## Improvments
+Further improvements could be included into the models: 
+
+* More sophisticated grid search approach in order to fine tune the parameters
+* Using ensemble models, i.e. one-one model for each of the sensors, and a final model to choose from the separate outcomes. 
