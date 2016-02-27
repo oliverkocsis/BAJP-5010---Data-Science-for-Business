@@ -235,7 +235,7 @@ plot(best)
 Based on the scoring history and the summary table **tree number of 200** is used in the final model. 
 
 ### Maximum tree depth
-```{r Distributed Random Forest Depht, warning=FALSE, message=FALSE, results="hide"}
+```{r Distributed Random Forest Depth, warning=FALSE, message=FALSE, results="hide"}
 drf_max_depth <- grid.search("drf", grid_id = "drf_max_depth", hyper_params = list(max_depth = c(10, 15, 20, 25, 30, 40, 50)))
 ```
 
@@ -290,8 +290,6 @@ plot(drf)
 summary(drf)
 ```
 
-
-
 ## Gradient Boosting Method (Grid Search)
 The default values of the Distributed Random Forest model are 
 * Number of trees (ntrees): 50
@@ -299,17 +297,101 @@ The default values of the Distributed Random Forest model are
 * For numerical columns - real/int -, build a histogram of - at least - this many bins, then split at the best point (nbins): 20
 * Learning rate (learn_rate): 0.1
 
-```{r, eval=FALSE, warning=FALSE, cache=TRUE, comment=""}
-system.time({
-  gbm <- h2o.grid("gbm", x = d_x_idxs, y = d_y_idxs, 
-                  training_frame = dx_train, validation_frame = dx_valid,
-                  hyper_params = list(ntrees = c(100, 250, 500),
-                                      max_depth = c(10, 15, 20, 25),
-                                      learn_rate = c(0.05, 0.1, 0.2),
-                                      nbins = c(50, 100, 150)),
-                  stopping_rounds = 5, stopping_tolerance = 1e-3)
-})
+Grid search is used to find the best parameter in order to find the best parameter. 
+
+### Number of trees
+```{r Gradient Boosting Method Trees, warning=FALSE, message=FALSE, results="hide"}
+gbm_ntrees <- grid.search("gbm", grid_id = "gbm_ntrees", hyper_params = list(ntrees = c(25, 50, 100, 200, 300, 400, 500)))
 ```
+
+```{r, warning=FALSE, message=FALSE, results="asis"}
+summarize.grid(gbm_ntrees)
+best <- h2o.getModel(gbm_ntrees@model_ids[[1]])
+summarize.model(best)
+```
+
+```{r, warning=FALSE, message=FALSE}
+plot(best)
+```
+
+#### Conclusion
+Based on the scoring history and the summary table **tree number of 300** is used in the final model. 
+
+### Maximum tree depth
+```{r Gradient Boosting Method Depth, warning=FALSE, message=FALSE, results="hide"}
+gbm_max_depth <- grid.search("gbm", grid_id = "gbm_max_depth", hyper_params = list(max_depth = c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150)))
+```
+
+```{r, warning=FALSE, message=FALSE, results="asis"}
+summarize.grid(gbm_max_depth)
+best <- h2o.getModel(gbm_max_depth@model_ids[[1]])
+summarize.model(best)
+```
+
+```{r, warning=FALSE, message=FALSE}
+plot(best)
+```
+
+#### Conclusion
+Based on the scoring history and the summary table **maximum tree depth of 110** is used in the final model. 
+
+### Number of bins
+```{r Gradient Boosting Method Bins, warning=FALSE, message=FALSE, results="hide"}
+gbm_nbins <- grid.search("gbm", grid_id = "gbm_nbins", hyper_params = list(nbins = c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 400)))
+```
+
+```{r, warning=FALSE, message=FALSE, results="asis"}
+summarize.grid(gbm_nbins)
+best <- h2o.getModel(gbm_nbins@model_ids[[1]])
+summarize.model(best)
+```
+
+```{r, warning=FALSE, message=FALSE}
+plot(best)
+```
+
+#### Conclusion
+Based on the scoring history and the summary table **number of bins of 60** is used in the final model. 
+
+### Learning rate
+```{r Gradient Boosting Method Rate, warning=FALSE, message=FALSE, results="hide"}
+gbm_rate <- grid.search("gbm", grid_id = "gbm_rate", hyper_params = list(learn_rate = c(0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8)))
+```
+
+```{r, warning=FALSE, message=FALSE, results="asis"}
+summarize.grid(gbm_rate)
+best <- h2o.getModel(gbm_rate@model_ids[[1]])
+summarize.model(best)
+```
+
+```{r, warning=FALSE, message=FALSE}
+plot(best)
+```
+
+#### Conclusion
+Based on the scoring history and the summary table **learning rate of 0.5** is used in the final model. 
+
+### Cummulative
+```{r Gradient Boosting Method Final, warning=FALSE, message=FALSE, results="hide", cache=TRUE}
+try(gbm <- h2o.getModel("gbm"), silent = TRUE)
+if (!exists("gbm")) {
+  gbm <- h2o.gbm(model_id = "gbm", x = d_x_idxs, y = d_y_idxs, 
+            training_frame = dx_train, validation_frame = dx_valid,
+            ntrees = 300, max_depth = 110, nbins = 60, learn_rate = 0.5,
+            stopping_rounds = 5, stopping_tolerance = 1e-3, seed = seed)
+}
+```
+
+```{r, warning=FALSE, message=FALSE, results="asis"}
+summarize.model(drf)
+```
+
+```{r, warning=FALSE, message=FALSE}
+plot(drf)
+summary(drf)
+```
+
+
 Try several supervised learning methods (and several values for the parameters for each method).
 
 Do model selection and evaluation properly (train-test or cross validation etc.) Show various diagnostics (e.g. ROC curve for classification etc.)
